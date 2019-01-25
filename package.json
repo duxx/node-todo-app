@@ -7,14 +7,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server/server.js"
   },
-  "engines": {
-    "node": "10.15.0"
-  },
   "author": "Antti Sand",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "mongoose": "^5.4.6"
+    "lodash": "^4.17.11",
+    "mongoose": "^5.4.6",
+    "validator": "^10.11.0"
   }
 }
