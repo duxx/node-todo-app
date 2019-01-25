@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const express = require('express')
 const bodyParser = require('body-parser')
 
@@ -11,14 +12,17 @@ const port = process.env.port || 3000
 
 app.use(bodyParser.json())
 
-app.post('/todos', (req, res) => {
-    let todo = new Todo({
-        text: req.body.text
-    })
+app.get('/', (req, res) => {
+    res.send('Please, use endpoints [todos, users]')
+})
 
-    todo.save().then((doc) => {
-        res.send(doc)
-    }, (e) => {
+app.post('/users', (req, res) => {
+    let body = _.pick(req.body, ['email', 'password'])
+    let user = new User(body)
+
+    user.save().then((user) => {
+        res.send(user)
+    }).catch((e) => {
         console.log("Error")
         res.status(400).send()
     })
@@ -27,7 +31,8 @@ app.post('/todos', (req, res) => {
 app.get('/todos', (req, res) => {
     Todo.find().then((todos) => {
         res.send({todos})
-    }, (e) => {
+    }).catch((e) => {
+        console.log("Error")
         res.status(400).send(e)
     })
 })
@@ -44,6 +49,42 @@ app.get('/todos/:id', (req, res) => {
         }
 
         res.send({todo})
+    }).catch((e) => {
+        console.log("Error")
+        res.status(400).send()
+    })
+})
+
+app.post('/todos', (req, res) => {
+    let todo = new Todo({
+        text: req.body.text
+    })
+
+    todo.save().then((doc) => {
+        res.send(doc)
+    }).catch((e) => {
+        console.log("Error")
+        res.status(400).send()
+    })
+})
+
+app.patch('/todos/:id', (req, res) => {
+    let id = req.params.id
+    let body = _.pick(req.body, ['text', 'completed'])
+    
+    if (!ObjectID.isValid(id)) {
+        return res.status(404).send()
+    }
+
+    if(_.isBoolean(body.completed) && body.completed) {
+        body.completedAt = new Date().getTime()
+    } else {
+        body.completed = false
+        body.completedAt = null
+    }
+
+    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+        res.send(todo)
     }).catch((e) => {
         res.status(400).send()
     })
@@ -62,6 +103,7 @@ app.delete('/todos/:id', (req, res) => {
 
         res.send({ todo })
     }).catch((e) => {
+        console.log("Error")
         res.status(400).send()
     })
 })
