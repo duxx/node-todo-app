@@ -6,6 +6,7 @@ const {mongoose} = require('./db/mongoose')
 const {ObjectID} = require('mongodb')
 const {Todo} = require('./models/todo')
 const {User} = require('./models/user')
+const {authenticate} = require('./middleware/authenticate')
 
 let app = express()
 const port = process.env.port || 3000
@@ -14,6 +15,10 @@ app.use(bodyParser.json())
 
 app.get('/', (req, res) => {
     res.send('Please, use endpoints [todos, users]')
+})
+
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user)
 })
 
 app.post('/users', (req, res) => {
